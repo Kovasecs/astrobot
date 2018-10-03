@@ -1,41 +1,95 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { environment } from '../../../environments/environment';
+import { CARS } from '../../core/store/cars';
+import { Car } from '../../core/store/models/car.model';
 
 @Component({
   selector: 'app-car',
-  template: `
-  <br>
-  <div class="card">
-    <header class="card-header">
-      <div class="card-header-title">
-        {{ carId }}
-      </div>
-      <a [routerLink]="['/']"  aria-label="home" class="button is-info is-outlined"> <-   </a>
-    </header>
-    <div class="card-content">
-      <div class="content">
-        Current speed : 0 km/h
-        Traveled : 0 km
-      </div>
-    </div>
-    <footer class="card-footer">
-      <div class="card-footer-item">
-        <button class="button is-danger is-outlined">Brake</button>
-      </div>
-      <div class="card-footer-item">
-        <button class="button is-primary is-outlined">Throttle</button>
-      </div>
-    </footer>
-  </div>
-  `,
+  templateUrl: 'car.component.html',
   styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class CarComponent implements OnInit {
-  public carId;
-  constructor(private route: ActivatedRoute) {}
+  public car: Car;
+  public speedClass = 'is-info';
+  public batteryClass = 'is-success';
+  public rechargedDistance;
+
+  constructor(private route: ActivatedRoute) {
+  }
 
   ngOnInit() {
-    this.carId = this.route.snapshot.params['carId'];
+    const carId = this.route.snapshot.params['carId'];
+    console.log("EOEOEOE::",CARS);
+    this.car = CARS.find(c => c.link.caption === carId);
+    setInterval(() => this.timeGoesBy(), environment.refreshInterval);
+    
+  }
+
+  public onBrake() {
+    this.car.currentSpeed -= 1 + (this.car.topSpeed - this.car.currentSpeed) / 10;
+  }
+
+  public onThrottle() {
+    this.car.currentSpeed += 1 + (this.car.topSpeed - this.car.currentSpeed) / 10;
+  }
+
+  public onRecharge() {
+    if (!this.rechargedDistance || this.rechargedDistance < 0) {
+      return;
+    }
+    if (this.rechargedDistance > this.car.totalBattery) {
+      this.rechargedDistance = this.car.totalBattery;
+    }
+    this.car.remainingBattery = this.rechargedDistance;
+  }
+
+  public hasBattery = () => this.car.remainingBattery > 0;
+
+  private timeGoesBy() {
+    this.checkSpeed();
+    this.checkBattery();
+  }
+  private checkSpeed() {
+    if (this.car.currentSpeed <= 1) {
+      this.car.currentSpeed = 0;
+    }
+    const speedRate = this.car.currentSpeed / this.car.topSpeed;
+    if (speedRate >= environment.dangerSpeedRate) {
+      this.speedClass = 'is-danger';
+    } else if (speedRate >= environment.warningSpeedRate) {
+      this.speedClass = 'is-warning';
+    } else {
+      this.speedClass = 'is-info';
+    }
+  }
+  private checkBattery() {
+    switch (true) {
+      case this.car.remainingBattery <= this.car.currentSpeed:
+        this.stopCar();
+        break;
+      case this.car.remainingBattery <= environment.dangerKmsBattery:
+        this.batteryClass = 'is-danger';
+        this.travelDistance();
+        break;
+      case this.car.remainingBattery <= environment.warningKmsBattery:
+        this.batteryClass = 'is-warning';
+        this.travelDistance();
+        break;
+      default:
+        this.batteryClass = 'is-success';
+        this.travelDistance();
+        break;
+    }
+  }
+  private stopCar() {
+    this.car.currentSpeed = 0;
+    this.car.distanceTraveled += this.car.remainingBattery;
+    this.car.remainingBattery = 0;
+  }
+  private travelDistance() {
+    this.car.distanceTraveled += this.car.currentSpeed;
+    this.car.remainingBattery -= this.car.currentSpeed;
   }
 }

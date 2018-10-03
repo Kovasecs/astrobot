@@ -1,3 +1,70 @@
 <p>
-  car works!
+  car works!<strong>{{title | uppercase}}</strong>
 </p>
+<br>
+ <div class="card">
+    <header class="card-header">
+      <div class="card-header-title">
+        {{ car.model | uppercase }}
+      </div>
+      <span class="card-header-icon">{{ car.cost | currency:'EUR' }}</span>
+    </header>
+    <div class="card-content">
+      <div class="content">
+        <div class="field is-grouped is-grouped-multiline">
+          <div class="control">
+            <div class="tags has-addons">
+              <span class="tag is-dark">Speed</span>
+              <span class="tag is-info">{{ car.currentSpeed | number:'1.0-0' }}</span>
+            </div>
+          </div>
+          <div class="control">
+            <div class="tags has-addons">
+              <span class="tag is-dark">Top</span>
+              <span class="tag is-danger">{{ car.topSpeed }}</span>
+            </div>
+          </div>
+        </div>
+        <progress [ngClass]="['progress', speedClass]" [value]="car.currentSpeed" [max]="car.topSpeed"></progress>
+        <div class="field is-grouped is-grouped-multiline">
+          <div class="control">
+            <div class="tags has-addons">
+              <span class="tag is-dark">Traveled</span>
+              <span class="tag is-success">{{ car.distanceTraveled | number:'1.2-2' }}</span>
+            </div>
+          </div>
+          <div class="control">
+            <div class="tags has-addons">
+              <span class="tag is-dark">Reamining</span>
+              <span class="tag is-danger">{{ car.remainingBattery | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+        <progress [ngClass]="['progress', batteryClass]" [value]="car.remainingBattery" [max]="car.totalBattery"></progress>
+      </div>
+    </div>
+    <footer >
+      <section *ngIf="hasBattery(); else rechargingSection"  class="card-footer">
+        <div class="card-footer-item">
+          <button class="button is-danger is-outlined" [disabled]="this.car.currentSpeed <= 0" (click)="onBrake()">Brake</button>
+        </div>
+        <div class="card-footer-item">
+          <button class="button is-primary is-outlined" [disabled]="this.car.currentSpeed >= this.car.topSpeed" (click)="onThrottle()">Throttle</button>
+        </div>
+      </section>
+      <ng-template #rechargingSection>
+        <form (ngSubmit)="onRecharge()" class="card-footer">
+          <div class="card-footer-item ">
+            <div class="field has-addons">
+              <div class="control">
+                <input [(ngModel)]="rechargedDistance" name="rechargedDistance" type="number" class="input" placeholder="Kilometers">
+              </div>
+              <div class="control">
+                <button type="submit" class="button is-primary">Recharge</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </ng-template>
+    </footer>
+  </div>
