@@ -1,0 +1,12 @@
+<p>
+  about works!
+</p>
+<nav class="navbar" role="navigation">
+  <div class="navbar-menu is-active">
+    <div class="navbar-start">
+      <a class="navbar-item" [routerLink]="['./links']">LINKS</a>
+      <a class="navbar-item" [routerLink]="['./info']">INFO</a>
+    </div>
+  </div>
+</nav>
+<router-outlet></router-outlet><!--Aqui mostrara el contenido dinamico que dicten las rutas del abour-routing.module -->
