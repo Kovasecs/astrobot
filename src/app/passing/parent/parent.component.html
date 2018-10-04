@@ -1,0 +1,10 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <app-child [child]="child1"[datoUno]="dato1" (emitPass)="passBall($event)"></app-child>
+    </div>
+    <div class="col-md-6">
+      <app-child [child]="child2" [datoDos]="dato2" (emitPass)="passBall($event)"></app-child>
+    </div>
+  </div>
+</div>

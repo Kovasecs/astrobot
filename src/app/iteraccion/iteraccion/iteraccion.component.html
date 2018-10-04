@@ -1,0 +1,8 @@
+<h3>ESTE ES EL COMPONENTE PADRE</h3>
+<label>Precio del Bitcoin</label>
+<input type="text" #pcomponent (keyup)="0"/>
+
+
+<p> Valor en el comoponente HIJO: {{CData}}</p>
+<app-hijo [PData]="pcomponent.value" (childEvent)="CData=$event"></app-hijo>
+<app-sub-hijo [Data2]="pcomponent.value"></app-sub-hijo>

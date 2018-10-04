@@ -1,0 +1,9 @@
+<div class="container">
+  <div>{{child.name}}</div>
+  <p>
+    <span (click)="passBall()">
+      <i *ngFor="let ball of child.futbols" class="fa fa-futbol-o"></i>
+    </span>
+  </p>
+  <p>NUMERO DE BALONES: {{datoUno}} {{datoDos}}</p>
+</div>
