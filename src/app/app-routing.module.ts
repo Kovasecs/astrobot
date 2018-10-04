@@ -16,6 +16,14 @@ const routes: Routes = [
     loadChildren: './car/car.module#CarModule'
   },
   {
+    path: 'iteraccion',
+    loadChildren: './iteraccion/iteraccion.module#IteraccionModule'
+  },
+  {
+    path: 'passing',
+    loadChildren:'./passing/passing.module#PassingModule'
+  },
+  {
     path: 'not-found',
     component: NotFoundComponent
   },

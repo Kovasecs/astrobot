@@ -3,7 +3,15 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  title: 'autobot',
+  version: '3-data',
+  tag: '3.0.0',
+  refreshInterval: 2000,
+  dangerSpeedRate: 0.9,
+  warningSpeedRate: 0.7,
+  dangerKmsBattery: 100,
+  warningKmsBattery: 150
 };
 
 /*
