@@ -11,7 +11,9 @@ export const environment = {
   dangerSpeedRate: 0.9,
   warningSpeedRate: 0.7,
   dangerKmsBattery: 100,
-  warningKmsBattery: 150
+  warningKmsBattery: 150,
+  factorSpeed: 10,
+  timeTravel:10
 };
 
 /*

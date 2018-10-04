@@ -3,6 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { CARS } from '../../core/store/cars';
 import { Car } from '../../core/store/models/car.model';
+import { CarsService } from '../../core/cars.service';
+import { EngineService} from '../engine.service';
 
 @Component({
   selector: 'app-car',
@@ -16,80 +18,36 @@ export class CarComponent implements OnInit {
   public batteryClass = 'is-success';
   public rechargedDistance;
 
-  constructor(private route: ActivatedRoute) {
-  }
+  constructor(private route: ActivatedRoute,private cars: CarsService,private engine:EngineService) {}
 
   ngOnInit() {
     const carId = this.route.snapshot.params['carId'];
-    console.log("EOEOEOE::",CARS);
-    this.car = CARS.find(c => c.link.caption === carId);
+    this.car = this.cars.getCarByLinkId(carId);
     setInterval(() => this.timeGoesBy(), environment.refreshInterval);
     
   }
+  /***
+   * ES IMPORTANTE SEPARAR LA LOGICA DE LA CAPA DE PRESENTACION
+   * EN EL COMPONENTE SOLO DEBERIA ESTAR LA PRESENTACION POR ESO 
+   * HEMOS USADO SERVICIOS QUE CONTINENE LA LOGICA DE ACCESO Y RECUPERACION
+   * DE LOS DATOS
+   */
+  private onBrake = () =>this.engine.brake(this.car);
+  private onThrottle = () => this.engine.throttle(this.car);
 
-  public onBrake() {
-    this.car.currentSpeed -= 1 + (this.car.topSpeed - this.car.currentSpeed) / 10;
+  /*DOS MANERAS DE DECLARAR LA FUNCION*/
+  private onRecharge2(rechargedDistance){
+    this.engine.recharge(rechargedDistance,this.car);
   }
-
-  public onThrottle() {
-    this.car.currentSpeed += 1 + (this.car.topSpeed - this.car.currentSpeed) / 10;
-  }
-
-  public onRecharge() {
-    if (!this.rechargedDistance || this.rechargedDistance < 0) {
-      return;
-    }
-    if (this.rechargedDistance > this.car.totalBattery) {
-      this.rechargedDistance = this.car.totalBattery;
-    }
-    this.car.remainingBattery = this.rechargedDistance;
-  }
-
-  public hasBattery = () => this.car.remainingBattery > 0;
-
+  private onRecharge = rechargedDistance => this.engine.recharge(rechargedDistance,this.car);
+  /*FIN*/
+  public hasBattery = () => this.engine.hasBatery(this.car);
   private timeGoesBy() {
     this.checkSpeed();
     this.checkBattery();
   }
-  private checkSpeed() {
-    if (this.car.currentSpeed <= 1) {
-      this.car.currentSpeed = 0;
-    }
-    const speedRate = this.car.currentSpeed / this.car.topSpeed;
-    if (speedRate >= environment.dangerSpeedRate) {
-      this.speedClass = 'is-danger';
-    } else if (speedRate >= environment.warningSpeedRate) {
-      this.speedClass = 'is-warning';
-    } else {
-      this.speedClass = 'is-info';
-    }
-  }
-  private checkBattery() {
-    switch (true) {
-      case this.car.remainingBattery <= this.car.currentSpeed:
-        this.stopCar();
-        break;
-      case this.car.remainingBattery <= environment.dangerKmsBattery:
-        this.batteryClass = 'is-danger';
-        this.travelDistance();
-        break;
-      case this.car.remainingBattery <= environment.warningKmsBattery:
-        this.batteryClass = 'is-warning';
-        this.travelDistance();
-        break;
-      default:
-        this.batteryClass = 'is-success';
-        this.travelDistance();
-        break;
-    }
-  }
-  private stopCar() {
-    this.car.currentSpeed = 0;
-    this.car.distanceTraveled += this.car.remainingBattery;
-    this.car.remainingBattery = 0;
-  }
-  private travelDistance() {
-    this.car.distanceTraveled += this.car.currentSpeed;
-    this.car.remainingBattery -= this.car.currentSpeed;
-  }
+  private checkSpeed = () => this.engine.checkSpeed(this.car);
+
+  private checkBattery = () => this.engine.checkBattery(this.car)
+
 }
